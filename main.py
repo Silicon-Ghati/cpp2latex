@@ -139,6 +139,63 @@ tokens = ["\\State \\Return" if token == "return" else token for token in tokens
 tokens = ["Input" if token == "cin" else token for token in tokens]
 tokens = ["Output" if token == "cout" else token for token in tokens]
 
+def convert(tokens: List[str]) -> str:
+    stack = []
+    a=0
+    latex_code1 = ""
+    for i, token in enumerate(tokens):
+        if token in ['while', 'for', 'if']:
+            condition = tokens[i + 1]
+            condition=condition[1:-1]
+            a=1
+
+          
+            if token == 'while':
+                latex_code1 += f"\\While{{{condition}}}\n"
+                i+=2
+            
+            
+        elif token == 'else':
+            if tokens[i + 1] == 'if':
+                a=2
+                condition = tokens[i + 2]
+                condition=condition[1:-1]
+                latex_code1 += f"\\ElsIf{{{condition}}}\n"
+                stack.append(('elseif', i + 3))
+            else:
+                latex_code1 += "\\Else\n"
+                stack.append(('else', i + 1))
+        elif token == '}':
+            start = stack[-1][1]
+            flow_control = stack.pop()[0]
+            code_snippet=""
+            
+            if flow_control == 'while':
+                latex_code1 += "\\EndWhile\n"
+            elif flow_control == 'for':
+                latex_code1 += "\\EndFor\n"
+            elif flow_control == 'if':
+                j = i + 1
+                
+            elif flow_control == 'elseif':
+                j = i + 1
+                while j < len(tokens) and tokens[j] != 'else':
+                     if j<len(tokens) and tokens[j]=='else':
+                        break
+                     j += 1
+                if j == len(tokens):
+                     latex_code1 += "\\EndIf\n"
+            elif flow_control == 'else':
+                latex_code1 += "\\EndIf\n"
+
+        
+    return latex_code1
+
+
+
+
+code =convert(tokens)
+latex_code+=code
 # print(tokens)
 # print(input_func)
         latex_code += """\\EndProcedure
