@@ -72,6 +72,74 @@ def save_file():
              return re.sub(r"(\w)([^\w\s])", r"\1 \2", input_func)
 
         function_body=add_space(function_body)
+
+        def tokenize(input_func):
+    tokens = []
+    input_func = re.sub("\n", " \n \\\State ", input_func)
+    current_token = ""
+    paranthesis_count = 0
+    for char in input_func:
+        if char == "(":
+            paranthesis_count += 1
+            current_token += char
+        elif char == ")":
+            paranthesis_count -= 1
+            current_token += char
+            if paranthesis_count == 0:
+                tokens.append(current_token)
+                current_token = ""
+        elif char == " " and paranthesis_count == 0:
+            if current_token:
+                tokens.append(current_token)
+                current_token = ""
+        else:
+            current_token += char
+    if current_token:
+        tokens.append(current_token)
+    return tokens
+
+
+def remove_semi(tokens):
+    return [token for token in tokens if token != ';']
+
+def remove_open(tokens):
+    return [token for token in tokens if token != '{']
+
+tokens = tokenize(function_body)
+tokens=remove_semi(tokens)
+tokens=remove_open(tokens)
+# print(tokens)
+
+def replace_comments(tokens):
+    for i in range(len(tokens)):
+        if tokens[i] == "//":
+            tokens[i] = "\\Comment{"
+            for j in range(i+1, len(tokens)):
+                if tokens[j] == "\n":
+                    tokens[j] = "}\n"
+                    i=j
+                    break
+    return tokens
+
+tokens = replace_comments(tokens)
+
+tokens = ["\\Repeat" if token == "do" else token for token in tokens]
+for i in range(len(tokens)):
+    if tokens[i] == "while" and tokens[i-1] == "}" and tokens[i+2] != "{":
+        tokens[i] = "\\Until{}"
+        tokens[i-1] = ""
+
+
+tokens = ["$\gets$" if token == "=" else token for token in tokens]
+tokens = ["\%" if token == "%" else token for token in tokens]
+tokens = ["$\geq$" if token == ">=" else token for token in tokens]
+tokens = ["$\leq$" if token == "<=" else token for token in tokens]
+tokens = ["$\phi$" if token == "null" else token for token in tokens]
+tokens = ["\\State \\Return" if token == "return" else token for token in tokens]
+tokens = ["Input" if token == "cin" else token for token in tokens]
+tokens = ["Output" if token == "cout" else token for token in tokens]
+
+# print(tokens)
 # print(input_func)
         latex_code += """\\EndProcedure
         \\end{algorithmic}
