@@ -153,13 +153,16 @@ def convert(tokens: List[str]) -> str:
             if token == 'while':
                 latex_code1 += f"\\While{{{condition}}}\n"
                 i+=2
+            elif token == 'for'or token=='if':
+                latex_code1 += f"\\For{{{condition}}}\n"
             
+            stack.append((token, i + 2))
             
         elif token == 'else':
             if tokens[i + 1] == 'if':
                 a=2
                 condition = tokens[i + 2]
-                condition=condition[1:-1]
+                condition=condition[1:-2]
                 latex_code1 += f"\\ElsIf{{{condition}}}\n"
                 stack.append(('elseif', i + 3))
             else:
@@ -176,7 +179,12 @@ def convert(tokens: List[str]) -> str:
                 latex_code1 += "\\EndFor\n"
             elif flow_control == 'if':
                 j = i + 1
-                
+                while j < len(tokens) and tokens[j] != 'else':
+                     if j<len(tokens) and tokens[j]=='else':
+                        break
+                     j += 2
+                if j == len(tokens):
+                     latex_code1 += "\\EndIf\n"
             elif flow_control == 'elseif':
                 j = i + 1
                 while j < len(tokens) and tokens[j] != 'else':
@@ -188,7 +196,9 @@ def convert(tokens: List[str]) -> str:
             elif flow_control == 'else':
                 latex_code1 += "\\EndIf\n"
 
-        
+       
+        else:
+            latex_code1+= tokens[i] +" "
     return latex_code1
 
 
