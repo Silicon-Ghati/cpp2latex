@@ -138,7 +138,6 @@ tokens = ["$\phi$" if token == "null" else token for token in tokens]
 tokens = ["\\State \\Return" if token == "return" else token for token in tokens]
 tokens = ["Input" if token == "cin" else token for token in tokens]
 tokens = ["Output" if token == "cout" else token for token in tokens]
-
 def convert(tokens: List[str]) -> str:
     stack = []
     a=0
@@ -153,16 +152,18 @@ def convert(tokens: List[str]) -> str:
             if token == 'while':
                 latex_code1 += f"\\While{{{condition}}}\n"
                 i+=2
-            elif token == 'for'or token=='if':
+            elif token == 'for':
                 latex_code1 += f"\\For{{{condition}}}\n"
-            
+            elif token == 'if':
+                latex_code1 += f"\\If{{{condition}}}\n"
+                i+=2
             stack.append((token, i + 2))
             
         elif token == 'else':
             if tokens[i + 1] == 'if':
                 a=2
                 condition = tokens[i + 2]
-                condition=condition[1:-2]
+                condition=condition[1:-1]
                 latex_code1 += f"\\ElsIf{{{condition}}}\n"
                 stack.append(('elseif', i + 3))
             else:
@@ -182,7 +183,7 @@ def convert(tokens: List[str]) -> str:
                 while j < len(tokens) and tokens[j] != 'else':
                      if j<len(tokens) and tokens[j]=='else':
                         break
-                     j += 2
+                     j += 1
                 if j == len(tokens):
                      latex_code1 += "\\EndIf\n"
             elif flow_control == 'elseif':
@@ -196,12 +197,11 @@ def convert(tokens: List[str]) -> str:
             elif flow_control == 'else':
                 latex_code1 += "\\EndIf\n"
 
-       
+        elif a > 0 :
+            a=a-1  
         else:
             latex_code1+= tokens[i] +" "
     return latex_code1
-
-
 
 
 code =convert(tokens)
