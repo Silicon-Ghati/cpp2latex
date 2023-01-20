@@ -51,6 +51,15 @@ def save_file():
 
         latex_code += "\\begin{algorithmic}\n"
         latex_code += f"\\Procedure{{{func_name}}}{{{parameter_list}}}\n"
+
+        def add_space(input_func):
+             return re.sub(r"([^\w\s=_&|/])(\w|\b)", r"\1 \2", re.sub(r"(\w|\b)([^\w\s=_&|/])", r"\1 \2", input_func))
+
+        input_func = add_space(input_func)
+
+        def replace_comments(input_func):
+           return re.sub(r"//", "// ", input_func)
+# print(input_func)
         latex_code += """\\EndProcedure
         \\end{algorithmic}
         \\end{algorithm}
