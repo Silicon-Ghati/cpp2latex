@@ -59,6 +59,19 @@ def save_file():
 
         def replace_comments(input_func):
            return re.sub(r"//", "// ", input_func)
+        input_func = replace_comments(input_func)
+
+        def extract_function_body(input_func):
+            start = input_func.index("{") + 1
+            end = input_func.rindex("}")
+            return input_func[start:end]
+
+        function_body = extract_function_body(input_func)
+
+        def add_space(input_func):
+             return re.sub(r"(\w)([^\w\s])", r"\1 \2", input_func)
+
+        function_body=add_space(function_body)
 # print(input_func)
         latex_code += """\\EndProcedure
         \\end{algorithmic}
